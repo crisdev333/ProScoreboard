@@ -1,0 +1,26 @@
+Options:
+  update-ticks: 20
+
+Worlds:
+  world:
+    title: '&aProScoreboard'
+    lines:
+      - '&7&m------------------------'
+      - '&aPlayer: &f%player_name%'
+      - '&aOnline: &f%server_online%'
+      - '&aRam: &f%server_ram_used%/%server_ram_max%'
+      - '&7&m------------------------'
+  world_nether:
+    title: '&cProScoreboard'
+    lines:
+      - '&7&m------------------------'
+      - '&cPlayer: &f%player_name%'
+      - '&cOnline: &f%server_online%'
+      - '&7&m------------------------'
+  world_the_end:
+    title: '&5ProScoreboard'
+    lines:
+      - '&7&m------------------------'
+      - '&5Player: &f%player_name%'
+      - '&5Online: &f%server_online%'
+      - '&7&m------------------------'
