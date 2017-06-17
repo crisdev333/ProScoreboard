@@ -1,7 +1,11 @@
 name: ProScoreboard
-version: 1.0
+version: 1.0.1
 author: crisdev333
 website: crisdev333.me
 description: A simple plugin to incorporate a system of scoreboards by world in your Bukkit server.
 main: me.crisdev333.proscoreboard.ProScoreboard
 depend: [PlaceholderAPI]
+commands:
+  proscoreboard:
+    aliases: [pboard]
+    permission: proscoreboard.admin
