@@ -1,92 +1,107 @@
 package me.crisdev333.proscoreboard;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+
 public class ScoreHelper {
+
+	// Static Manager
+
+	private static HashMap<UUID, ScoreHelper> players = new HashMap<>();
+
+	public static ScoreHelper getByPlayer(Player player) {
+		return players.get(player.getUniqueId());
+	}
 	
+	public static void removePlayer(Player player) {
+		players.remove(player.getUniqueId());
+	}
+	
+	private Player player;
 	private Scoreboard scoreboard;
 	private Objective sidebar;
-	
-	public ScoreHelper(String title) {
+
+	public ScoreHelper(Player player) {
+		this.player = player;
 		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		sidebar = scoreboard.registerNewObjective("sidebar", "dummy");
 		sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
-		setTitle(title);
-	}
-	
-	public Scoreboard getScoreboard() {
-		return this.scoreboard;
-	}
-	
-	public void setTitle(String title) {
-		title = ChatColor.translateAlternateColorCodes('&', title);
-		if(title.length()>32) {
-			title = title.substring(0, 32);
-		}
-		sidebar.setDisplayName(title);
-	}
-	
-	public void removeAllSlots() {
+		player.setScoreboard(scoreboard);
+		// Create Teams
 		for(int i=1; i<=15; i++) {
-			removeSlot(i);
+			Team team = scoreboard.registerNewTeam("SLOT_" + i);
+			team.addEntry(genEntry(i));
 		}
+		players.put(player.getUniqueId(), this);
 	}
-	
-	public void removeSlot(int slot) {
-		if(scoreboard.getTeam("SLOT_" + slot) != null) {
-			String entry = getEntry(slot);
-			scoreboard.resetScores(entry);
-			Team team = scoreboard.getTeam("SLOT_" + slot);
-			team.removeEntry(entry);
-			team.unregister();
-		}
+
+	// Sidebar
+
+	public void setTitle(String title) {
+		title = PlaceholderAPI.setPlaceholders(player, title);
+		sidebar.setDisplayName(title.length()>32 ? title.substring(0, 32) : title);
 	}
 	
 	public void setSlot(int slot, String text) {
-		text = ChatColor.translateAlternateColorCodes('&', text);
-		
-		if(text.length()>32) {
-			text = text.substring(0, 32);
-		}
-		
-		Team team;
-		
-		if(scoreboard.getTeam("SLOT_" + slot) != null) {
-			team = scoreboard.getTeam("SLOT_" + slot);
-		} else {
-			team = scoreboard.registerNewTeam("SLOT_" + slot);
-			String entry = getEntry(slot);
-			team.addEntry(entry);
+		Team team = scoreboard.getTeam("SLOT_" + slot);
+		String entry = genEntry(slot);
+		if(!scoreboard.getEntries().contains(entry)) {
 			sidebar.getScore(entry).setScore(slot);
 		}
 		
-		String preffix = getFirstSplit(text);
-		String lastColor = ChatColor.getLastColors(preffix);
-		String firstSuffix = getSecondSplit(text);
-		String secondSuffix = lastColor + firstSuffix;
-		String suffix = getFirstSplit(secondSuffix);
-		
-		team.setPrefix(preffix);
-		team.setSuffix(suffix);
+		text = PlaceholderAPI.setPlaceholders(player, text);
+		String pre = getFirstSplit(text);
+		String suf = getFirstSplit(ChatColor.getLastColors(pre) + getSecondSplit(text));
+		team.setPrefix(pre);
+		team.setSuffix(suf);
 	}
-	
-	private String getEntry(int slot) {
+
+	public void removeSlot(int slot) {
+		String entry = genEntry(slot);
+		if(scoreboard.getEntries().contains(entry)) {
+			scoreboard.resetScores(entry);
+		}
+	}
+
+	public void setSlotsFromList(List<String> list) {
+		int slot = list.size();
+		
+		if(slot<15) {
+			for(int i=(slot +1); i<=15; i++) {
+				removeSlot(i);
+			}
+		}
+		
+		for(String line : list) {
+			setSlot(slot, line);
+			slot--;
+		}
+	}
+
+	private static String genEntry(int slot) {
 		return ChatColor.values()[slot].toString();
 	}
-	
+
 	private String getFirstSplit(String s) {
 		return s.length()>16 ? s.substring(0, 16) : s;
 	}
-	
+
 	private String getSecondSplit(String s) {
 		if(s.length()>32) {
 			s = s.substring(0, 32);
 		}
 		return s.length()>16 ? s.substring(16, s.length()) : "";
 	}
+
 }
