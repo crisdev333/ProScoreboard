@@ -1,6 +1,5 @@
 package me.crisdev333.proscoreboard;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,15 +17,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ProScoreboard extends JavaPlugin implements Listener {
-	
+
 	private HashMap<String, ScoreWorld> scoreWorlds;
-	
+
 	@Override
 	public void onEnable() {
 		// Copy config.yml file
 		saveDefaultConfig();
 		// Load ScoreWorlds Object's from config.yml
 		loadScoreWorlds();
+		// Load online players
 		loadOnlinePlayers();
 		// Register command and events
 		Bukkit.getPluginCommand("proscoreboard").setExecutor(this);
@@ -44,15 +44,15 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 
 		}.runTaskTimer(this, ticks, ticks);
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		
+
 		if(args.length==0) {
 			sender.sendMessage(ChatColor.GREEN + "Usage: " + ChatColor.WHITE +  "/" + label + " reload");
 			return true;
 		}
-		
+
 		if(args[0].equalsIgnoreCase("reload")) {
 			// Reload config.yml file
 			reloadConfig();
@@ -66,15 +66,15 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 			sender.sendMessage(ChatColor.GREEN + "The configuration has been reloaded!");
 			return true;
 		}
-		
+
 		return true;
 	}
-	
+
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event) {
 		registerPlayer(event.getPlayer());
 	}
-	
+
 	@EventHandler
 	private void onPlayerQuit(PlayerQuitEvent event) {
 		ScoreHelper.removePlayer(event.getPlayer());
@@ -84,7 +84,7 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 	private void onChangeWorld(PlayerChangedWorldEvent event) {
 		updatePlayer(event.getPlayer());
 	}
-	
+
 	private void loadScoreWorlds() {
 		scoreWorlds = new HashMap<>();
 		for(String world : getConfig().getConfigurationSection("Worlds").getKeys(false)) {
@@ -104,16 +104,16 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 		new ScoreHelper(player);
 		updatePlayer(player);
 	}
-	
+
 	private void updatePlayer(Player player) {
 		ScoreHelper helper = ScoreHelper.getByPlayer(player);
-		
+
 		if(scoreWorlds.containsKey(player.getWorld().getName())) {
 			ScoreWorld score = scoreWorlds.get(player.getWorld().getName());
 			helper.setTitle(score.getTitle());
 			helper.setSlotsFromList(score.getLines());
 		} else {
-			helper.setSlotsFromList(new ArrayList<String>());
+			helper.setSlotsFromList(Utils.EMPTY_LIST);
 		}
 	}
 

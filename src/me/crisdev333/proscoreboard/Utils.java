@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 
 public class Utils {
 	
+	public static final List<String> EMPTY_LIST = new ArrayList<>();
+	
 	public static List<Player> getOnlinePlayers() {
 		ArrayList<Player> list = new ArrayList<>();
 		for(World world : Bukkit.getWorlds()) {

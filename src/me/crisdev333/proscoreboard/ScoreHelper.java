@@ -16,18 +16,16 @@ import me.clip.placeholderapi.PlaceholderAPI;
 
 public class ScoreHelper {
 
-	// Static Manager
-
 	private static HashMap<UUID, ScoreHelper> players = new HashMap<>();
 
 	public static ScoreHelper getByPlayer(Player player) {
 		return players.get(player.getUniqueId());
 	}
-	
+
 	public static void removePlayer(Player player) {
 		players.remove(player.getUniqueId());
 	}
-	
+
 	private Player player;
 	private Scoreboard scoreboard;
 	private Objective sidebar;
@@ -46,20 +44,18 @@ public class ScoreHelper {
 		players.put(player.getUniqueId(), this);
 	}
 
-	// Sidebar
-
 	public void setTitle(String title) {
 		title = PlaceholderAPI.setPlaceholders(player, title);
 		sidebar.setDisplayName(title.length()>32 ? title.substring(0, 32) : title);
 	}
-	
+
 	public void setSlot(int slot, String text) {
 		Team team = scoreboard.getTeam("SLOT_" + slot);
 		String entry = genEntry(slot);
 		if(!scoreboard.getEntries().contains(entry)) {
 			sidebar.getScore(entry).setScore(slot);
 		}
-		
+
 		text = PlaceholderAPI.setPlaceholders(player, text);
 		String pre = getFirstSplit(text);
 		String suf = getFirstSplit(ChatColor.getLastColors(pre) + getSecondSplit(text));
@@ -76,20 +72,20 @@ public class ScoreHelper {
 
 	public void setSlotsFromList(List<String> list) {
 		int slot = list.size();
-		
+
 		if(slot<15) {
 			for(int i=(slot +1); i<=15; i++) {
 				removeSlot(i);
 			}
 		}
-		
+
 		for(String line : list) {
 			setSlot(slot, line);
 			slot--;
 		}
 	}
 
-	private static String genEntry(int slot) {
+	private String genEntry(int slot) {
 		return ChatColor.values()[slot].toString();
 	}
 
