@@ -30,7 +30,7 @@ public class ScoreHelper {
 	private Scoreboard scoreboard;
 	private Objective sidebar;
 
-	public ScoreHelper(Player player) {
+	public ScoreHelper(Player player, boolean healthName, boolean healthTab) {
 		this.player = player;
 		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		sidebar = scoreboard.registerNewObjective("sidebar", "dummy");
@@ -41,6 +41,18 @@ public class ScoreHelper {
 			Team team = scoreboard.registerNewTeam("SLOT_" + i);
 			team.addEntry(genEntry(i));
 		}
+		
+		if(healthName) {
+			Objective hName = scoreboard.registerNewObjective("hname", "health");
+			hName.setDisplaySlot(DisplaySlot.BELOW_NAME);
+			hName.setDisplayName(ChatColor.RED + "❤");
+		}
+		
+		if(healthTab) {
+			Objective hTab = scoreboard.registerNewObjective("htab", "health");
+			hTab.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		}
+		
 		players.put(player.getUniqueId(), this);
 	}
 

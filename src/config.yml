@@ -1,5 +1,7 @@
 Options:
   update-ticks: 20
+  health-name: true
+  health-tab: true
 
 Worlds:
   world:

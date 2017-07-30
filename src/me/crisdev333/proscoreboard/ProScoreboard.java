@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ProScoreboard extends JavaPlugin implements Listener {
 
 	private HashMap<String, ScoreWorld> scoreWorlds;
+	private boolean healthName, healthTab;
 
 	@Override
 	public void onEnable() {
@@ -26,13 +27,16 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 		saveDefaultConfig();
 		// Load ScoreWorlds Object's from config.yml
 		loadScoreWorlds();
+		// Init variables
+		long ticks = getConfig().getLong("Options.update-ticks");
+		healthName = getConfig().getBoolean("Options.health-name");
+		healthTab = getConfig().getBoolean("Options.health-tab");
 		// Load online players
 		loadOnlinePlayers();
 		// Register command and events
 		Bukkit.getPluginCommand("proscoreboard").setExecutor(this);
 		Bukkit.getPluginManager().registerEvents(this, this);
 		// Create task for update the scoreboards
-		long ticks = getConfig().getLong("Options.update-ticks");
 		new BukkitRunnable() {
 
 			@Override
@@ -101,7 +105,7 @@ public class ProScoreboard extends JavaPlugin implements Listener {
 	}
 
 	private void registerPlayer(Player player) {
-		new ScoreHelper(player);
+		new ScoreHelper(player, healthName, healthTab);
 		updatePlayer(player);
 	}
 
