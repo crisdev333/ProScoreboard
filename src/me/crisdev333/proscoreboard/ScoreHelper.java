@@ -18,11 +18,15 @@ public class ScoreHelper {
 
 	private static HashMap<UUID, ScoreHelper> players = new HashMap<>();
 
-	public static ScoreHelper getByPlayer(Player player) {
+	public static ScoreHelper create(Player player, boolean healthName, boolean healthTab) {
+		return new ScoreHelper(player, healthName, healthTab);
+	}
+
+	public static ScoreHelper get(Player player) {
 		return players.get(player.getUniqueId());
 	}
 
-	public static void removePlayer(Player player) {
+	public static void remove(Player player) {
 		players.remove(player.getUniqueId());
 	}
 
@@ -30,7 +34,7 @@ public class ScoreHelper {
 	private Scoreboard scoreboard;
 	private Objective sidebar;
 
-	public ScoreHelper(Player player, boolean healthName, boolean healthTab) {
+	private ScoreHelper(Player player, boolean healthName, boolean healthTab) {
 		this.player = player;
 		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		sidebar = scoreboard.registerNewObjective("sidebar", "dummy");
@@ -41,24 +45,29 @@ public class ScoreHelper {
 			Team team = scoreboard.registerNewTeam("SLOT_" + i);
 			team.addEntry(genEntry(i));
 		}
-		
+
 		if(healthName) {
 			Objective hName = scoreboard.registerNewObjective("hname", "health");
 			hName.setDisplaySlot(DisplaySlot.BELOW_NAME);
 			hName.setDisplayName(ChatColor.RED + "❤");
 		}
-		
+
 		if(healthTab) {
 			Objective hTab = scoreboard.registerNewObjective("htab", "health");
 			hTab.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 		}
-		
+
 		players.put(player.getUniqueId(), this);
 	}
 
 	public void setTitle(String title) {
 		title = PlaceholderAPI.setPlaceholders(player, title);
-		sidebar.setDisplayName(title.length()>32 ? title.substring(0, 32) : title);
+		
+		if(title.length() > 32)
+			title = title.substring(0, 32);
+		
+		if(!sidebar.getDisplayName().equals(title))
+			sidebar.setDisplayName(title);
 	}
 
 	public void setSlot(int slot, String text) {
@@ -71,8 +80,11 @@ public class ScoreHelper {
 		text = PlaceholderAPI.setPlaceholders(player, text);
 		String pre = getFirstSplit(text);
 		String suf = getFirstSplit(ChatColor.getLastColors(pre) + getSecondSplit(text));
-		team.setPrefix(pre);
-		team.setSuffix(suf);
+
+		if(!team.getPrefix().equals(pre))
+			team.setPrefix(pre);
+		if(!team.getSuffix().equals(suf))
+			team.setSuffix(suf);
 	}
 
 	public void removeSlot(int slot) {
@@ -106,9 +118,8 @@ public class ScoreHelper {
 	}
 
 	private String getSecondSplit(String s) {
-		if(s.length()>32) {
+		if(s.length()>32)
 			s = s.substring(0, 32);
-		}
 		return s.length()>16 ? s.substring(16, s.length()) : "";
 	}
 

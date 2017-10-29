@@ -1,28 +1,19 @@
 package me.crisdev333.proscoreboard;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScoreWorld {
 	
-	private String world, title;
+	private String title;
 	private List<String> lines;
 
-	public ScoreWorld(String world, String title, List<String> lines) {
-		this.world = world;
+	public ScoreWorld(String title, List<String> lines) {
 		this.title = title;
-		if(lines.size()<=15) {
-			this.lines = lines;
-		} else {
-			this.lines = new ArrayList<>();
-			for(int i=0; i<15; i++) {
-				this.lines.add(lines.get(i));
-			}
+		this.lines = lines;
+		
+		while(this.lines.size() > 15) {
+			this.lines.remove(this.lines.size()-1);
 		}
-	}
-	
-	public String getWorld() {
-		return world;
 	}
 	
 	public String getTitle() {
